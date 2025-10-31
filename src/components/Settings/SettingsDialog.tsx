@@ -62,19 +62,24 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - state-of-the-art performance"
+      },
+      {
         id: "claude-3-5-sonnet-20241022",
         name: "Claude 3.5 Sonnet (Oct 2024)",
-        description: "Latest & most capable - best overall performance"
+        description: "Latest 3.x - excellent performance"
       },
       {
         id: "claude-3-5-sonnet-20240620",
         name: "Claude 3.5 Sonnet (Jun 2024)",
-        description: "Previous version - balanced performance"
+        description: "Previous 3.5 - balanced performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Most intelligent - top-level reasoning"
+        description: "Most intelligent 3.x - top-level reasoning"
       },
       {
         id: "claude-3-sonnet-20240229",
@@ -118,19 +123,24 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - exceptional coding ability"
+      },
+      {
         id: "claude-3-5-sonnet-20241022",
         name: "Claude 3.5 Sonnet (Oct 2024)",
-        description: "Latest & most capable - excellent for coding"
+        description: "Latest 3.x - excellent for coding"
       },
       {
         id: "claude-3-5-sonnet-20240620",
         name: "Claude 3.5 Sonnet (Jun 2024)",
-        description: "Previous version - strong performance"
+        description: "Previous 3.5 - strong performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Most intelligent - best for complex solutions"
+        description: "Most intelligent 3.x - best for complex solutions"
       },
       {
         id: "claude-3-sonnet-20240229",
@@ -174,19 +184,24 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - best for analyzing errors"
+      },
+      {
         id: "claude-3-5-sonnet-20241022",
         name: "Claude 3.5 Sonnet (Oct 2024)",
-        description: "Latest & best for analyzing errors"
+        description: "Latest 3.x - excellent for debugging"
       },
       {
         id: "claude-3-5-sonnet-20240620",
         name: "Claude 3.5 Sonnet (Jun 2024)",
-        description: "Previous version - reliable debugging"
+        description: "Previous 3.5 - reliable debugging"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Most thorough - deep code analysis"
+        description: "Most thorough 3.x - deep code analysis"
       },
       {
         id: "claude-3-sonnet-20240229",
@@ -278,9 +293,9 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
       setSolutionModel("gemini-1.5-pro");
       setDebuggingModel("gemini-1.5-pro");
     } else if (provider === "anthropic") {
-      setExtractionModel("claude-3-5-sonnet-20241022");
-      setSolutionModel("claude-3-5-sonnet-20241022");
-      setDebuggingModel("claude-3-5-sonnet-20241022");
+      setExtractionModel("claude-sonnet-4-5-20250929");
+      setSolutionModel("claude-sonnet-4-5-20250929");
+      setDebuggingModel("claude-sonnet-4-5-20250929");
     }
   };
 
@@ -412,7 +427,7 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
                   />
                   <div className="flex flex-col">
                     <p className="font-medium text-white text-sm">Claude</p>
-                    <p className="text-xs text-white/60">Claude 3.5 models</p>
+                    <p className="text-xs text-white/60">Claude 4.5 & 3.5 models</p>
                   </div>
                 </div>
               </div>
