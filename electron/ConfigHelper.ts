@@ -76,11 +76,17 @@ export class ConfigHelper extends EventEmitter {
       }
       return model;
     }  else if (provider === "anthropic") {
-      // Only allow Claude models
-      const allowedModels = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229'];
+      // Only allow Claude models (3.5 Sonnet is the latest as of now)
+      const allowedModels = [
+        'claude-3-5-sonnet-20241022',  // Latest Claude 3.5 Sonnet
+        'claude-3-5-sonnet-20240620',  // Previous Claude 3.5 Sonnet
+        'claude-3-opus-20240229',      // Claude 3 Opus
+        'claude-3-sonnet-20240229',    // Claude 3 Sonnet
+        'claude-3-haiku-20240307'      // Claude 3 Haiku (fastest)
+      ];
       if (!allowedModels.includes(model)) {
-        console.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-3-7-sonnet-20250219`);
-        return 'claude-3-7-sonnet-20250219';
+        console.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-3-5-sonnet-20241022`);
+        return 'claude-3-5-sonnet-20241022';
       }
       return model;
     }
@@ -175,9 +181,9 @@ export class ConfigHelper extends EventEmitter {
           updates.solutionModel = "gpt-4o";
           updates.debuggingModel = "gpt-4o";
         } else if (updates.apiProvider === "anthropic") {
-          updates.extractionModel = "claude-3-7-sonnet-20250219";
-          updates.solutionModel = "claude-3-7-sonnet-20250219";
-          updates.debuggingModel = "claude-3-7-sonnet-20250219";
+          updates.extractionModel = "claude-3-5-sonnet-20241022";
+          updates.solutionModel = "claude-3-5-sonnet-20241022";
+          updates.debuggingModel = "claude-3-5-sonnet-20241022";
         } else {
           updates.extractionModel = "gemini-2.0-flash";
           updates.solutionModel = "gemini-2.0-flash";

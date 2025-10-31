@@ -62,19 +62,29 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Best overall performance for problem extraction"
+        id: "claude-3-5-sonnet-20241022",
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest & most capable - best overall performance"
       },
       {
-        id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous version - balanced performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most intelligent - top-level reasoning"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Balanced speed and capability"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Fastest and most compact"
       }
     ]
   },
@@ -108,19 +118,29 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Strong overall performance for coding tasks"
+        id: "claude-3-5-sonnet-20241022",
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest & most capable - excellent for coding"
       },
       {
-        id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous version - strong performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most intelligent - best for complex solutions"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Good balance of speed and quality"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Fastest - good for quick solutions"
       }
     ]
   },
@@ -154,19 +174,29 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Best for analyzing code and error messages"
+        id: "claude-3-5-sonnet-20241022",
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest & best for analyzing errors"
       },
       {
-        id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous version - reliable debugging"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most thorough - deep code analysis"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Good debugging capabilities"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Quick debugging feedback"
       }
     ]
   }
@@ -248,9 +278,9 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
       setSolutionModel("gemini-1.5-pro");
       setDebuggingModel("gemini-1.5-pro");
     } else if (provider === "anthropic") {
-      setExtractionModel("claude-3-7-sonnet-20250219");
-      setSolutionModel("claude-3-7-sonnet-20250219");
-      setDebuggingModel("claude-3-7-sonnet-20250219");
+      setExtractionModel("claude-3-5-sonnet-20241022");
+      setSolutionModel("claude-3-5-sonnet-20241022");
+      setDebuggingModel("claude-3-5-sonnet-20241022");
     }
   };
 
@@ -382,7 +412,7 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
                   />
                   <div className="flex flex-col">
                     <p className="font-medium text-white text-sm">Claude</p>
-                    <p className="text-xs text-white/60">Claude 3 models</p>
+                    <p className="text-xs text-white/60">Claude 3.5 models</p>
                   </div>
                 </div>
               </div>
