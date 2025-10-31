@@ -76,11 +76,18 @@ export class ConfigHelper extends EventEmitter {
       }
       return model;
     }  else if (provider === "anthropic") {
-      // Only allow Claude models
-      const allowedModels = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229'];
+      // Allow Claude 4.5, 4.0, and 3.x models
+      const allowedModels = [
+        'claude-sonnet-4-5-20250929',  // Claude 4.5 Sonnet (latest)
+        'claude-3-5-sonnet-20241022',  // Claude 3.5 Sonnet (Oct 2024)
+        'claude-3-5-sonnet-20240620',  // Claude 3.5 Sonnet (Jun 2024)
+        'claude-3-opus-20240229',      // Claude 3 Opus
+        'claude-3-sonnet-20240229',    // Claude 3 Sonnet
+        'claude-3-haiku-20240307'      // Claude 3 Haiku (fastest)
+      ];
       if (!allowedModels.includes(model)) {
-        console.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-3-7-sonnet-20250219`);
-        return 'claude-3-7-sonnet-20250219';
+        console.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-sonnet-4-5-20250929`);
+        return 'claude-sonnet-4-5-20250929';
       }
       return model;
     }
@@ -175,9 +182,9 @@ export class ConfigHelper extends EventEmitter {
           updates.solutionModel = "gpt-4o";
           updates.debuggingModel = "gpt-4o";
         } else if (updates.apiProvider === "anthropic") {
-          updates.extractionModel = "claude-3-7-sonnet-20250219";
-          updates.solutionModel = "claude-3-7-sonnet-20250219";
-          updates.debuggingModel = "claude-3-7-sonnet-20250219";
+          updates.extractionModel = "claude-sonnet-4-5-20250929";
+          updates.solutionModel = "claude-sonnet-4-5-20250929";
+          updates.debuggingModel = "claude-sonnet-4-5-20250929";
         } else {
           updates.extractionModel = "gemini-2.0-flash";
           updates.solutionModel = "gemini-2.0-flash";

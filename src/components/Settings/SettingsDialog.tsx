@@ -62,19 +62,34 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Best overall performance for problem extraction"
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - state-of-the-art performance"
       },
       {
         id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest 3.x - excellent performance"
+      },
+      {
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous 3.5 - balanced performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most intelligent 3.x - top-level reasoning"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Balanced speed and capability"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Fastest and most compact"
       }
     ]
   },
@@ -108,19 +123,34 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Strong overall performance for coding tasks"
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - exceptional coding ability"
       },
       {
         id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest 3.x - excellent for coding"
+      },
+      {
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous 3.5 - strong performance"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most intelligent 3.x - best for complex solutions"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Good balance of speed and quality"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Fastest - good for quick solutions"
       }
     ]
   },
@@ -154,19 +184,34 @@ const modelCategories: ModelCategory[] = [
     ],
     anthropicModels: [
       {
-        id: "claude-3-7-sonnet-20250219",
-        name: "Claude 3.7 Sonnet",
-        description: "Best for analyzing code and error messages"
+        id: "claude-sonnet-4-5-20250929",
+        name: "Claude 4.5 Sonnet",
+        description: "Latest & most advanced - best for analyzing errors"
       },
       {
         id: "claude-3-5-sonnet-20241022",
-        name: "Claude 3.5 Sonnet",
-        description: "Balanced performance and speed"
+        name: "Claude 3.5 Sonnet (Oct 2024)",
+        description: "Latest 3.x - excellent for debugging"
+      },
+      {
+        id: "claude-3-5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (Jun 2024)",
+        description: "Previous 3.5 - reliable debugging"
       },
       {
         id: "claude-3-opus-20240229",
         name: "Claude 3 Opus",
-        description: "Top-level intelligence, fluency, and understanding"
+        description: "Most thorough 3.x - deep code analysis"
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        description: "Good debugging capabilities"
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        description: "Quick debugging feedback"
       }
     ]
   }
@@ -248,9 +293,9 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
       setSolutionModel("gemini-1.5-pro");
       setDebuggingModel("gemini-1.5-pro");
     } else if (provider === "anthropic") {
-      setExtractionModel("claude-3-7-sonnet-20250219");
-      setSolutionModel("claude-3-7-sonnet-20250219");
-      setDebuggingModel("claude-3-7-sonnet-20250219");
+      setExtractionModel("claude-sonnet-4-5-20250929");
+      setSolutionModel("claude-sonnet-4-5-20250929");
+      setDebuggingModel("claude-sonnet-4-5-20250929");
     }
   };
 
@@ -382,7 +427,7 @@ export function SettingsDialog({ open: externalOpen, onOpenChange }: SettingsDia
                   />
                   <div className="flex flex-col">
                     <p className="font-medium text-white text-sm">Claude</p>
-                    <p className="text-xs text-white/60">Claude 3 models</p>
+                    <p className="text-xs text-white/60">Claude 4.5 & 3.5 models</p>
                   </div>
                 </div>
               </div>
