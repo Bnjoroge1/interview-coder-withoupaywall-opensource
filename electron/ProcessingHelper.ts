@@ -1,6 +1,7 @@
 // ProcessingHelper.ts
 import fs from "node:fs"
 import path from "node:path"
+import log from "electron-log"
 import { ScreenshotHelper } from "./ScreenshotHelper"
 import { IProcessingHelperDeps } from "./main"
 import * as axios from "axios"
@@ -83,12 +84,12 @@ export class ProcessingHelper {
           });
           this.geminiApiKey = null;
           this.anthropicClient = null;
-          console.log("OpenAI client initialized successfully");
+          log.info("OpenAI client initialized successfully");
         } else {
           this.openaiClient = null;
           this.geminiApiKey = null;
           this.anthropicClient = null;
-          console.warn("No API key available, OpenAI client not initialized");
+          log.warn("No API key available, OpenAI client not initialized");
         }
       } else if (config.apiProvider === "gemini"){
         // Gemini client initialization
@@ -96,12 +97,12 @@ export class ProcessingHelper {
         this.anthropicClient = null;
         if (config.apiKey) {
           this.geminiApiKey = config.apiKey;
-          console.log("Gemini API key set successfully");
+          log.info("Gemini API key set successfully");
         } else {
           this.openaiClient = null;
           this.geminiApiKey = null;
           this.anthropicClient = null;
-          console.warn("No API key available, Gemini client not initialized");
+          log.warn("No API key available, Gemini client not initialized");
         }
       } else if (config.apiProvider === "anthropic") {
         // Reset other clients
@@ -113,16 +114,16 @@ export class ProcessingHelper {
             timeout: 60000,
             maxRetries: 2
           });
-          console.log("Anthropic client initialized successfully");
+          log.info("Anthropic client initialized successfully");
         } else {
           this.openaiClient = null;
           this.geminiApiKey = null;
           this.anthropicClient = null;
-          console.warn("No API key available, Anthropic client not initialized");
+          log.warn("No API key available, Anthropic client not initialized");
         }
       }
     } catch (error) {
-      console.error("Failed to initialize AI client:", error);
+      log.error("Failed to initialize AI client:", error);
       this.openaiClient = null;
       this.geminiApiKey = null;
       this.anthropicClient = null;
@@ -154,7 +155,7 @@ export class ProcessingHelper {
       await this.waitForInitialization(mainWindow)
       return 999 // Always return sufficient credits to work
     } catch (error) {
-      console.error("Error getting credits:", error)
+      log.error("Error getting credits:", error)
       return 999 // Unlimited credits as fallback
     }
   }
@@ -184,14 +185,14 @@ export class ProcessingHelper {
             return language;
           }
         } catch (err) {
-          console.warn("Could not get language from window", err);
+          log.warn("Could not get language from window", err);
         }
       }
       
       // Default fallback
       return "python";
     } catch (error) {
-      console.error("Error getting language:", error)
+      log.error("Error getting language:", error)
       return "python"
     }
   }
@@ -207,7 +208,7 @@ export class ProcessingHelper {
       this.initializeAIClient();
       
       if (!this.openaiClient) {
-        console.error("OpenAI client not initialized");
+        log.error("OpenAI client not initialized");
         mainWindow.webContents.send(
           this.deps.PROCESSING_EVENTS.API_KEY_INVALID
         );
@@ -217,7 +218,7 @@ export class ProcessingHelper {
       this.initializeAIClient();
       
       if (!this.geminiApiKey) {
-        console.error("Gemini API key not initialized");
+        log.error("Gemini API key not initialized");
         mainWindow.webContents.send(
           this.deps.PROCESSING_EVENTS.API_KEY_INVALID
         );
@@ -228,7 +229,7 @@ export class ProcessingHelper {
       this.initializeAIClient();
       
       if (!this.anthropicClient) {
-        console.error("Anthropic client not initialized");
+        log.error("Anthropic client not initialized");
         mainWindow.webContents.send(
           this.deps.PROCESSING_EVENTS.API_KEY_INVALID
         );
@@ -237,16 +238,16 @@ export class ProcessingHelper {
     }
 
     const view = this.deps.getView()
-    console.log("Processing screenshots in view:", view)
+    log.info("Processing screenshots in view:", view)
 
     if (view === "queue") {
       mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.INITIAL_START)
       const screenshotQueue = this.screenshotHelper.getScreenshotQueue()
-      console.log("Processing main queue screenshots:", screenshotQueue)
+      log.info("Processing main queue screenshots:", screenshotQueue)
       
       // Check if the queue is empty
       if (!screenshotQueue || screenshotQueue.length === 0) {
-        console.log("No screenshots found in queue");
+        log.info("No screenshots found in queue");
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS);
         return;
       }
@@ -254,7 +255,7 @@ export class ProcessingHelper {
       // Check that files actually exist
       const existingScreenshots = screenshotQueue.filter(path => fs.existsSync(path));
       if (existingScreenshots.length === 0) {
-        console.log("Screenshot files don't exist on disk");
+        log.info("Screenshot files don't exist on disk");
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS);
         return;
       }
@@ -273,7 +274,7 @@ export class ProcessingHelper {
                 data: fs.readFileSync(path).toString('base64')
               };
             } catch (err) {
-              console.error(`Error reading screenshot ${path}:`, err);
+              log.error(`Error reading screenshot ${path}:`, err);
               return null;
             }
           })
@@ -289,7 +290,7 @@ export class ProcessingHelper {
         const result = await this.processScreenshotsHelper(validScreenshots, signal)
 
         if (!result.success) {
-          console.log("Processing failed:", result.error)
+          log.info("Processing failed:", result.error)
           if (result.error?.includes("API Key") || result.error?.includes("OpenAI") || result.error?.includes("Gemini")) {
             mainWindow.webContents.send(
               this.deps.PROCESSING_EVENTS.API_KEY_INVALID
@@ -301,13 +302,13 @@ export class ProcessingHelper {
             )
           }
           // Reset view back to queue on error
-          console.log("Resetting view to queue due to error")
+          log.info("Resetting view to queue due to error")
           this.deps.setView("queue")
           return
         }
 
         // Only set view to solutions if processing succeeded
-        console.log("Setting view to solutions after successful processing")
+        log.info("Setting view to solutions after successful processing")
         mainWindow.webContents.send(
           this.deps.PROCESSING_EVENTS.SOLUTION_SUCCESS,
           result.data
@@ -318,7 +319,7 @@ export class ProcessingHelper {
           this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
           error
         )
-        console.error("Processing error:", error)
+        log.error("Processing error:", error)
         if (axios.isCancel(error)) {
           mainWindow.webContents.send(
             this.deps.PROCESSING_EVENTS.INITIAL_SOLUTION_ERROR,
@@ -331,7 +332,7 @@ export class ProcessingHelper {
           )
         }
         // Reset view back to queue on error
-        console.log("Resetting view to queue due to error")
+        log.info("Resetting view to queue due to error")
         this.deps.setView("queue")
       } finally {
         this.currentProcessingAbortController = null
@@ -340,11 +341,11 @@ export class ProcessingHelper {
       // view == 'solutions'
       const extraScreenshotQueue =
         this.screenshotHelper.getExtraScreenshotQueue()
-      console.log("Processing extra queue screenshots:", extraScreenshotQueue)
+      log.info("Processing extra queue screenshots:", extraScreenshotQueue)
       
       // Check if the extra queue is empty
       if (!extraScreenshotQueue || extraScreenshotQueue.length === 0) {
-        console.log("No extra screenshots found in queue");
+        log.info("No extra screenshots found in queue");
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS);
         
         return;
@@ -353,7 +354,7 @@ export class ProcessingHelper {
       // Check that files actually exist
       const existingExtraScreenshots = extraScreenshotQueue.filter(path => fs.existsSync(path));
       if (existingExtraScreenshots.length === 0) {
-        console.log("Extra screenshot files don't exist on disk");
+        log.info("Extra screenshot files don't exist on disk");
         mainWindow.webContents.send(this.deps.PROCESSING_EVENTS.NO_SCREENSHOTS);
         return;
       }
@@ -375,7 +376,7 @@ export class ProcessingHelper {
           allPaths.map(async (path) => {
             try {
               if (!fs.existsSync(path)) {
-                console.warn(`Screenshot file does not exist: ${path}`);
+                log.warn(`Screenshot file does not exist: ${path}`);
                 return null;
               }
               
@@ -385,7 +386,7 @@ export class ProcessingHelper {
                 data: fs.readFileSync(path).toString('base64')
               };
             } catch (err) {
-              console.error(`Error reading screenshot ${path}:`, err);
+              log.error(`Error reading screenshot ${path}:`, err);
               return null;
             }
           })
@@ -398,7 +399,7 @@ export class ProcessingHelper {
           throw new Error("Failed to load screenshot data for debugging");
         }
         
-        console.log(
+        log.info(
           "Combined screenshots for processing:",
           validScreenshots.map((s) => s.path)
         )
@@ -509,7 +510,7 @@ export class ProcessingHelper {
           const jsonText = responseText.replace(/```json|```/g, '').trim();
           problemInfo = JSON.parse(jsonText);
         } catch (error) {
-          console.error("Error parsing OpenAI response:", error);
+          log.error("Error parsing OpenAI response:", error);
           return {
             success: false,
             error: "Failed to parse problem information. Please try again or use clearer screenshots."
@@ -568,7 +569,7 @@ export class ProcessingHelper {
           const jsonText = responseText.replace(/```json|```/g, '').trim();
           problemInfo = JSON.parse(jsonText);
         } catch (error) {
-          console.error("Error using Gemini API:", error);
+          log.error("Error using Gemini API:", error);
           return {
             success: false,
             error: "Failed to process with Gemini API. Please check your API key or try again later."
@@ -614,7 +615,7 @@ export class ProcessingHelper {
           const jsonText = responseText.replace(/```json|```/g, '').trim();
           problemInfo = JSON.parse(jsonText);
         } catch (error: any) {
-          console.error("Error using Anthropic API:", error);
+          log.error("Error using Anthropic API:", error);
 
           // Add specific handling for Claude's limitations
           if (error.status === 429) {
@@ -706,7 +707,7 @@ export class ProcessingHelper {
         };
       }
 
-      console.error("API Error Details:", error);
+      log.error("API Error Details:", error);
       return { 
         success: false, 
         error: error.message || "Failed to process screenshots. Please try again." 
@@ -828,7 +829,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
           
           responseContent = responseData.candidates[0].content.parts[0].text;
         } catch (error) {
-          console.error("Error using Gemini API for solution:", error);
+          log.error("Error using Gemini API for solution:", error);
           return {
             success: false,
             error: "Failed to generate solution with Gemini API. Please check your API key or try again later."
@@ -866,7 +867,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
 
           responseContent = (response.content[0] as { type: 'text', text: string }).text;
         } catch (error: any) {
-          console.error("Error using Anthropic API for solution:", error);
+          log.error("Error using Anthropic API for solution:", error);
 
           // Add specific handling for Claude's limitations
           if (error.status === 429) {
@@ -977,7 +978,7 @@ Your solution should be efficient, well-commented, and handle edge cases.
         };
       }
       
-      console.error("Solution generation error:", error);
+      log.error("Solution generation error:", error);
       return { success: false, error: error.message || "Failed to generate solution" };
     }
   }
@@ -1149,7 +1150,7 @@ If you include code examples, use proper markdown code blocks with language spec
           
           debugContent = responseData.candidates[0].content.parts[0].text;
         } catch (error) {
-          console.error("Error using Gemini API for debugging:", error);
+          log.error("Error using Gemini API for debugging:", error);
           return {
             success: false,
             error: "Failed to process debug request with Gemini API. Please check your API key or try again later."
@@ -1224,7 +1225,7 @@ If you include code examples, use proper markdown code blocks with language spec
           
           debugContent = (response.content[0] as { type: 'text', text: string }).text;
         } catch (error: any) {
-          console.error("Error using Anthropic API for debugging:", error);
+          log.error("Error using Anthropic API for debugging:", error);
           
           // Add specific handling for Claude's limitations
           if (error.status === 429) {
@@ -1285,7 +1286,7 @@ If you include code examples, use proper markdown code blocks with language spec
 
       return { success: true, data: response };
     } catch (error: any) {
-      console.error("Debug processing error:", error);
+      log.error("Debug processing error:", error);
       return { success: false, error: error.message || "Failed to process debug request" };
     }
   }

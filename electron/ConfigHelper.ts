@@ -1,6 +1,7 @@
 // ConfigHelper.ts
 import fs from "node:fs"
 import path from "node:path"
+import log from "electron-log"
 import { app } from "electron"
 import { EventEmitter } from "events"
 import { OpenAI } from "openai"
@@ -32,9 +33,9 @@ export class ConfigHelper extends EventEmitter {
     // Use the app's user data directory to store the config
     try {
       this.configPath = path.join(app.getPath('userData'), 'config.json');
-      console.log('Config path:', this.configPath);
+      log.info('Config path:', this.configPath);
     } catch (err) {
-      console.warn('Could not access user data path, using fallback');
+      log.warn('Could not access user data path, using fallback');
       this.configPath = path.join(process.cwd(), 'config.json');
     }
     
@@ -51,7 +52,7 @@ export class ConfigHelper extends EventEmitter {
         this.saveConfig(this.defaultConfig);
       }
     } catch (err) {
-      console.error("Error ensuring config exists:", err);
+      log.error("Error ensuring config exists:", err);
     }
   }
 
@@ -63,7 +64,7 @@ export class ConfigHelper extends EventEmitter {
       // Only allow gpt-4o and gpt-4o-mini for OpenAI
       const allowedModels = ['gpt-4o', 'gpt-4o-mini'];
       if (!allowedModels.includes(model)) {
-        console.warn(`Invalid OpenAI model specified: ${model}. Using default model: gpt-4o`);
+        log.warn(`Invalid OpenAI model specified: ${model}. Using default model: gpt-4o`);
         return 'gpt-4o';
       }
       return model;
@@ -71,7 +72,7 @@ export class ConfigHelper extends EventEmitter {
       // Only allow gemini-1.5-pro and gemini-2.0-flash for Gemini
       const allowedModels = ['gemini-1.5-pro', 'gemini-2.0-flash'];
       if (!allowedModels.includes(model)) {
-        console.warn(`Invalid Gemini model specified: ${model}. Using default model: gemini-2.0-flash`);
+        log.warn(`Invalid Gemini model specified: ${model}. Using default model: gemini-2.0-flash`);
         return 'gemini-2.0-flash'; // Changed default to flash
       }
       return model;
@@ -79,7 +80,7 @@ export class ConfigHelper extends EventEmitter {
       // Only allow Claude models
       const allowedModels = ['claude-3-7-sonnet-20250219', 'claude-3-5-sonnet-20241022', 'claude-3-opus-20240229'];
       if (!allowedModels.includes(model)) {
-        console.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-3-7-sonnet-20250219`);
+        log.warn(`Invalid Anthropic model specified: ${model}. Using default model: claude-3-7-sonnet-20250219`);
         return 'claude-3-7-sonnet-20250219';
       }
       return model;
@@ -120,7 +121,7 @@ export class ConfigHelper extends EventEmitter {
       this.saveConfig(this.defaultConfig);
       return this.defaultConfig;
     } catch (err) {
-      console.error("Error loading config:", err);
+      log.error("Error loading config:", err);
       return this.defaultConfig;
     }
   }
@@ -138,7 +139,7 @@ export class ConfigHelper extends EventEmitter {
       // Write the config file
       fs.writeFileSync(this.configPath, JSON.stringify(config, null, 2));
     } catch (err) {
-      console.error("Error saving config:", err);
+      log.error("Error saving config:", err);
     }
   }
 
@@ -155,13 +156,13 @@ export class ConfigHelper extends EventEmitter {
         // If API key starts with "sk-", it's likely an OpenAI key
         if (updates.apiKey.trim().startsWith('sk-')) {
           provider = "openai";
-          console.log("Auto-detected OpenAI API key format");
+          log.info("Auto-detected OpenAI API key format");
         } else if (updates.apiKey.trim().startsWith('sk-ant-')) {
           provider = "anthropic";
-          console.log("Auto-detected Anthropic API key format");
+          log.info("Auto-detected Anthropic API key format");
         } else {
           provider = "gemini";
-          console.log("Using Gemini API key format (default)");
+          log.info("Using Gemini API key format (default)");
         }
         
         // Update the provider in the updates object
@@ -209,7 +210,7 @@ export class ConfigHelper extends EventEmitter {
       
       return newConfig;
     } catch (error) {
-      console.error('Error updating config:', error);
+      log.error('Error updating config:', error);
       return this.defaultConfig;
     }
   }
@@ -294,14 +295,14 @@ export class ConfigHelper extends EventEmitter {
       if (apiKey.trim().startsWith('sk-')) {
         if (apiKey.trim().startsWith('sk-ant-')) {
           provider = "anthropic";
-          console.log("Auto-detected Anthropic API key format for testing");
+          log.info("Auto-detected Anthropic API key format for testing");
         } else {
           provider = "openai";
-          console.log("Auto-detected OpenAI API key format for testing");
+          log.info("Auto-detected OpenAI API key format for testing");
         }
       } else {
         provider = "gemini";
-        console.log("Using Gemini API key format for testing (default)");
+        log.info("Using Gemini API key format for testing (default)");
       }
     }
     
@@ -326,7 +327,7 @@ export class ConfigHelper extends EventEmitter {
       await openai.models.list();
       return { valid: true };
     } catch (error: any) {
-      console.error('OpenAI API key test failed:', error);
+      log.error('OpenAI API key test failed:', error);
       
       // Determine the specific error type for better error messages
       let errorMessage = 'Unknown error validating OpenAI API key';
@@ -359,7 +360,7 @@ export class ConfigHelper extends EventEmitter {
       }
       return { valid: false, error: 'Invalid Gemini API key format.' };
     } catch (error: any) {
-      console.error('Gemini API key test failed:', error);
+      log.error('Gemini API key test failed:', error);
       let errorMessage = 'Unknown error validating Gemini API key';
       
       if (error.message) {
@@ -384,7 +385,7 @@ export class ConfigHelper extends EventEmitter {
       }
       return { valid: false, error: 'Invalid Anthropic API key format.' };
     } catch (error: any) {
-      console.error('Anthropic API key test failed:', error);
+      log.error('Anthropic API key test failed:', error);
       let errorMessage = 'Unknown error validating Anthropic API key';
       
       if (error.message) {
