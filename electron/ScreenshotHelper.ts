@@ -2,6 +2,7 @@
 
 import path from "node:path";
 import fs from "node:fs";
+import log from "electron-log";
 import { app } from "electron";
 import { v4 as uuidv4 } from "uuid";
 import { execFile } from "child_process";
@@ -54,9 +55,9 @@ export class ScreenshotHelper {
       if (!fs.existsSync(dir)) {
         try {
           fs.mkdirSync(dir, { recursive: true });
-          console.log(`Created directory: ${dir}`);
+          log.info(`Created directory: ${dir}`);
         } catch (err) {
-          console.error(`Error creating directory ${dir}:`, err);
+          log.error(`Error creating directory ${dir}:`, err);
         }
       }
     }
@@ -76,9 +77,9 @@ export class ScreenshotHelper {
         for (const file of files) {
           try {
             fs.unlinkSync(file);
-            console.log(`Deleted existing screenshot: ${file}`);
+            log.info(`Deleted existing screenshot: ${file}`);
           } catch (err) {
-            console.error(`Error deleting screenshot ${file}:`, err);
+            log.error(`Error deleting screenshot ${file}:`, err);
           }
         }
       }
@@ -94,16 +95,16 @@ export class ScreenshotHelper {
         for (const file of files) {
           try {
             fs.unlinkSync(file);
-            console.log(`Deleted existing extra screenshot: ${file}`);
+            log.info(`Deleted existing extra screenshot: ${file}`);
           } catch (err) {
-            console.error(`Error deleting extra screenshot ${file}:`, err);
+            log.error(`Error deleting extra screenshot ${file}:`, err);
           }
         }
       }
 
-      console.log("Screenshot directories cleaned successfully");
+      log.info("Screenshot directories cleaned successfully");
     } catch (err) {
-      console.error("Error cleaning screenshot directories:", err);
+      log.error("Error cleaning screenshot directories:", err);
     }
   }
 
@@ -112,8 +113,8 @@ export class ScreenshotHelper {
   }
 
   public setView(view: "queue" | "solutions" | "debug"): void {
-    console.log("Setting view in ScreenshotHelper:", view);
-    console.log(
+    log.info("Setting view in ScreenshotHelper:", view);
+    log.info(
       "Current queues - Main:",
       this.screenshotQueue,
       "Extra:",
@@ -127,7 +128,7 @@ export class ScreenshotHelper {
   }
 
   public getExtraScreenshotQueue(): string[] {
-    console.log("Getting extra screenshot queue:", this.extraScreenshotQueue);
+    log.info("Getting extra screenshot queue:", this.extraScreenshotQueue);
     return this.extraScreenshotQueue;
   }
 
@@ -136,7 +137,7 @@ export class ScreenshotHelper {
     this.screenshotQueue.forEach((screenshotPath) => {
       fs.unlink(screenshotPath, (err) => {
         if (err)
-          console.error(`Error deleting screenshot at ${screenshotPath}:`, err);
+          log.error(`Error deleting screenshot at ${screenshotPath}:`, err);
       });
     });
     this.screenshotQueue = [];
@@ -145,7 +146,7 @@ export class ScreenshotHelper {
     this.extraScreenshotQueue.forEach((screenshotPath) => {
       fs.unlink(screenshotPath, (err) => {
         if (err)
-          console.error(
+          log.error(
             `Error deleting extra screenshot at ${screenshotPath}:`,
             err
           );
@@ -156,7 +157,7 @@ export class ScreenshotHelper {
 
   private async captureScreenshot(): Promise<Buffer> {
     try {
-      console.log("Starting screenshot capture...");
+      log.info("Starting screenshot capture...");
 
       // For Windows, try multiple methods
       if (process.platform === "win32") {
@@ -164,14 +165,14 @@ export class ScreenshotHelper {
       }
 
       // For macOS and Linux, use buffer directly
-      console.log("Taking screenshot on non-Windows platform");
+      log.info("Taking screenshot on non-Windows platform");
       const buffer = await screenshot({ format: "png" });
-      console.log(
+      log.info(
         `Screenshot captured successfully, size: ${buffer.length} bytes`
       );
       return buffer;
     } catch (error) {
-      console.error("Error capturing screenshot:", error);
+      log.error("Error capturing screenshot:", error);
       throw new Error(`Failed to capture screenshot: ${error.message}`);
     }
   }
@@ -180,12 +181,12 @@ export class ScreenshotHelper {
    * Windows-specific screenshot capture with multiple fallback mechanisms
    */
   private async captureWindowsScreenshot(): Promise<Buffer> {
-    console.log("Attempting Windows screenshot with multiple methods");
+    log.info("Attempting Windows screenshot with multiple methods");
 
     // Method 1: Try screenshot-desktop with filename first
     try {
       const tempFile = path.join(this.tempDir, `temp-${uuidv4()}.png`);
-      console.log(
+      log.info(
         `Taking Windows screenshot to temp file (Method 1): ${tempFile}`
       );
 
@@ -193,7 +194,7 @@ export class ScreenshotHelper {
 
       if (fs.existsSync(tempFile)) {
         const buffer = await fs.promises.readFile(tempFile);
-        console.log(
+        log.info(
           `Method 1 successful, screenshot size: ${buffer.length} bytes`
         );
 
@@ -201,20 +202,20 @@ export class ScreenshotHelper {
         try {
           await fs.promises.unlink(tempFile);
         } catch (cleanupErr) {
-          console.warn("Failed to clean up temp file:", cleanupErr);
+          log.warn("Failed to clean up temp file:", cleanupErr);
         }
 
         return buffer;
       } else {
-        console.log("Method 1 failed: File not created");
+        log.info("Method 1 failed: File not created");
         throw new Error("Screenshot file not created");
       }
     } catch (error) {
-      console.warn("Windows screenshot Method 1 failed:", error);
+      log.warn("Windows screenshot Method 1 failed:", error);
 
       // Method 2: Try using PowerShell
       try {
-        console.log("Attempting Windows screenshot with PowerShell (Method 2)");
+        log.info("Attempting Windows screenshot with PowerShell (Method 2)");
         const tempFile = path.join(this.tempDir, `ps-temp-${uuidv4()}.png`);
 
         // PowerShell command to take screenshot using .NET classes
@@ -249,7 +250,7 @@ export class ScreenshotHelper {
         // Check if file exists and read it
         if (fs.existsSync(tempFile)) {
           const buffer = await fs.promises.readFile(tempFile);
-          console.log(
+          log.info(
             `Method 2 successful, screenshot size: ${buffer.length} bytes`
           );
 
@@ -257,7 +258,7 @@ export class ScreenshotHelper {
           try {
             await fs.promises.unlink(tempFile);
           } catch (err) {
-            console.warn("Failed to clean up PowerShell temp file:", err);
+            log.warn("Failed to clean up PowerShell temp file:", err);
           }
 
           return buffer;
@@ -265,10 +266,10 @@ export class ScreenshotHelper {
           throw new Error("PowerShell screenshot file not created");
         }
       } catch (psError) {
-        console.warn("Windows PowerShell screenshot failed:", psError);
+        log.warn("Windows PowerShell screenshot failed:", psError);
 
         // Method 3: Last resort - create a tiny placeholder image
-        console.log(
+        log.info(
           "All screenshot methods failed, creating placeholder image"
         );
 
@@ -277,7 +278,7 @@ export class ScreenshotHelper {
           "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
           "base64"
         );
-        console.log("Created placeholder image as fallback");
+        log.info("Created placeholder image as fallback");
 
         // Show the error but return a valid buffer so the app doesn't crash
         throw new Error(
@@ -291,7 +292,7 @@ export class ScreenshotHelper {
     hideMainWindow: () => void,
     showMainWindow: () => void
   ): Promise<string> {
-    console.log("Taking screenshot in view:", this.view);
+    log.info("Taking screenshot in view:", this.view);
     hideMainWindow();
 
     // Increased delay for window hiding on Windows
@@ -315,19 +316,19 @@ export class ScreenshotHelper {
           fs.mkdirSync(screenshotDir, { recursive: true });
         }
         await fs.promises.writeFile(screenshotPath, screenshotBuffer);
-        console.log("Adding screenshot to main queue:", screenshotPath);
+        log.info("Adding screenshot to main queue:", screenshotPath);
         this.screenshotQueue.push(screenshotPath);
         if (this.screenshotQueue.length > this.MAX_SCREENSHOTS) {
           const removedPath = this.screenshotQueue.shift();
           if (removedPath) {
             try {
               await fs.promises.unlink(removedPath);
-              console.log(
+              log.info(
                 "Removed old screenshot from main queue:",
                 removedPath
               );
             } catch (error) {
-              console.error("Error removing old screenshot:", error);
+              log.error("Error removing old screenshot:", error);
             }
           }
         }
@@ -339,25 +340,25 @@ export class ScreenshotHelper {
           fs.mkdirSync(screenshotDir, { recursive: true });
         }
         await fs.promises.writeFile(screenshotPath, screenshotBuffer);
-        console.log("Adding screenshot to extra queue:", screenshotPath);
+        log.info("Adding screenshot to extra queue:", screenshotPath);
         this.extraScreenshotQueue.push(screenshotPath);
         if (this.extraScreenshotQueue.length > this.MAX_SCREENSHOTS) {
           const removedPath = this.extraScreenshotQueue.shift();
           if (removedPath) {
             try {
               await fs.promises.unlink(removedPath);
-              console.log(
+              log.info(
                 "Removed old screenshot from extra queue:",
                 removedPath
               );
             } catch (error) {
-              console.error("Error removing old screenshot:", error);
+              log.error("Error removing old screenshot:", error);
             }
           }
         }
       }
     } catch (error) {
-      console.error("Screenshot error:", error);
+      log.error("Screenshot error:", error);
       throw error;
     } finally {
       // Increased delay for showing window again
@@ -371,14 +372,14 @@ export class ScreenshotHelper {
   public async getImagePreview(filepath: string): Promise<string> {
     try {
       if (!fs.existsSync(filepath)) {
-        console.error(`Image file not found: ${filepath}`);
+        log.error(`Image file not found: ${filepath}`);
         return "";
       }
 
       const data = await fs.promises.readFile(filepath);
       return `data:image/png;base64,${data.toString("base64")}`;
     } catch (error) {
-      console.error("Error reading image:", error);
+      log.error("Error reading image:", error);
       return "";
     }
   }
@@ -402,7 +403,7 @@ export class ScreenshotHelper {
       }
       return { success: true };
     } catch (error) {
-      console.error("Error deleting file:", error);
+      log.error("Error deleting file:", error);
       return { success: false, error: error.message };
     }
   }
@@ -413,7 +414,7 @@ export class ScreenshotHelper {
       if (fs.existsSync(screenshotPath)) {
         fs.unlink(screenshotPath, (err) => {
           if (err)
-            console.error(
+            log.error(
               `Error deleting extra screenshot at ${screenshotPath}:`,
               err
             );

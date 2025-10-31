@@ -1,6 +1,7 @@
 import { app, BrowserWindow, screen, shell, ipcMain } from "electron"
 import path from "path"
 import fs from "fs"
+import log from "electron-log"
 import { initializeIpcHandlers } from "./ipcHandlers"
 import { ProcessingHelper } from "./ProcessingHelper"
 import { ScreenshotHelper } from "./ScreenshotHelper"
@@ -242,18 +243,18 @@ async function createWindow(): Promise<void> {
 
   // Add more detailed logging for window events
   state.mainWindow.webContents.on("did-finish-load", () => {
-    console.log("Window finished loading")
+    log.info("Window finished loading")
   })
   state.mainWindow.webContents.on(
     "did-fail-load",
     async (event, errorCode, errorDescription) => {
-      console.error("Window failed to load:", errorCode, errorDescription)
+      log.error("Window failed to load:", errorCode, errorDescription)
       if (isDev) {
         // In development, retry loading after a short delay
-        console.log("Retrying to load development server...")
+        log.info("Retrying to load development server...")
         setTimeout(() => {
           state.mainWindow?.loadURL("http://localhost:54321").catch((error) => {
-            console.error("Failed to load dev server on retry:", error)
+            log.error("Failed to load dev server on retry:", error)
           })
         }, 1000)
       }
@@ -262,27 +263,27 @@ async function createWindow(): Promise<void> {
 
   if (isDev) {
     // In development, load from the dev server
-    console.log("Loading from development server: http://localhost:54321")
+    log.info("Loading from development server: http://localhost:54321")
     state.mainWindow.loadURL("http://localhost:54321").catch((error) => {
-      console.error("Failed to load dev server, falling back to local file:", error)
+      log.error("Failed to load dev server, falling back to local file:", error)
       // Fallback to local file if dev server is not available
       const indexPath = path.join(__dirname, "../dist/index.html")
-      console.log("Falling back to:", indexPath)
+      log.info("Falling back to:", indexPath)
       if (fs.existsSync(indexPath)) {
         state.mainWindow.loadFile(indexPath)
       } else {
-        console.error("Could not find index.html in dist folder")
+        log.error("Could not find index.html in dist folder")
       }
     })
   } else {
     // In production, load from the built files
     const indexPath = path.join(__dirname, "../dist/index.html")
-    console.log("Loading production build:", indexPath)
+    log.info("Loading production build:", indexPath)
     
     if (fs.existsSync(indexPath)) {
       state.mainWindow.loadFile(indexPath)
     } else {
-      console.error("Could not find index.html in dist folder")
+      log.error("Could not find index.html in dist folder")
     }
   }
 
@@ -292,7 +293,7 @@ async function createWindow(): Promise<void> {
     state.mainWindow.webContents.openDevTools()
   }
   state.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    console.log("Attempting to open URL:", url)
+    log.info("Attempting to open URL:", url)
     try {
       const parsedURL = new URL(url);
       const hostname = parsedURL.hostname;
@@ -302,7 +303,7 @@ async function createWindow(): Promise<void> {
         return { action: "deny" }; // Do not open this URL in a new Electron window
       }
     } catch (error) {
-      console.error("Invalid URL %d in setWindowOpenHandler: %d" , url , error);
+      log.error("Invalid URL %d in setWindowOpenHandler: %d" , url , error);
       return { action: "deny" }; // Deny access as URL string is malformed or invalid
     }
     return { action: "allow" };
@@ -350,17 +351,17 @@ async function createWindow(): Promise<void> {
   // Set opacity based on user preferences or hide initially
   // Ensure the window is visible for the first launch or if opacity > 0.1
   const savedOpacity = configHelper.getOpacity();
-  console.log(`Initial opacity from config: ${savedOpacity}`);
+  log.info(`Initial opacity from config: ${savedOpacity}`);
   
   // Always make sure window is shown first
   state.mainWindow.showInactive(); // Use showInactive for consistency
   
   if (savedOpacity <= 0.1) {
-    console.log('Initial opacity too low, setting to 0 and hiding window');
+    log.info('Initial opacity too low, setting to 0 and hiding window');
     state.mainWindow.setOpacity(0);
     state.isWindowVisible = false;
   } else {
-    console.log(`Setting initial opacity to ${savedOpacity}`);
+    log.info(`Setting initial opacity to ${savedOpacity}`);
     state.mainWindow.setOpacity(savedOpacity);
     state.isWindowVisible = true;
   }
@@ -396,7 +397,7 @@ function hideMainWindow(): void {
     state.mainWindow.setIgnoreMouseEvents(true, { forward: true });
     state.mainWindow.setOpacity(0);
     state.isWindowVisible = false;
-    console.log('Window hidden, opacity set to 0');
+    log.info('Window hidden, opacity set to 0');
   }
 }
 
@@ -418,12 +419,12 @@ function showMainWindow(): void {
     state.mainWindow.showInactive(); // Use showInactive instead of show+focus
     state.mainWindow.setOpacity(1); // Then set opacity to 1 after showing
     state.isWindowVisible = true;
-    console.log('Window shown with showInactive(), opacity set to 1');
+    log.info('Window shown with showInactive(), opacity set to 1');
   }
 }
 
 function toggleMainWindow(): void {
-  console.log(`Toggling window. Current state: ${state.isWindowVisible ? 'visible' : 'hidden'}`);
+  log.info(`Toggling window. Current state: ${state.isWindowVisible ? 'visible' : 'hidden'}`);
   if (state.isWindowVisible) {
     hideMainWindow();
   } else {
@@ -451,7 +452,7 @@ function moveWindowVertical(updateFn: (y: number) => number): void {
     state.screenHeight + ((state.windowSize?.height || 0) * 2) / 3
 
   // Log the current state and limits
-  console.log({
+  log.info({
     newY,
     maxUpLimit,
     maxDownLimit,
@@ -490,16 +491,16 @@ function setWindowDimensions(width: number, height: number): void {
 // Environment setup
 function loadEnvVariables() {
   if (isDev) {
-    console.log("Loading env variables from:", path.join(process.cwd(), ".env"))
+    log.info("Loading env variables from:", path.join(process.cwd(), ".env"))
     dotenv.config({ path: path.join(process.cwd(), ".env") })
   } else {
-    console.log(
+    log.info(
       "Loading env variables from:",
       path.join(process.resourcesPath, ".env")
     )
     dotenv.config({ path: path.join(process.resourcesPath, ".env") })
   }
-  console.log("Environment variables loaded for open-source version")
+  log.info("Environment variables loaded for open-source version")
 }
 
 // Initialize application
@@ -527,7 +528,7 @@ async function initializeApp() {
     
     // Ensure a configuration file exists
     if (!configHelper.hasApiKey()) {
-      console.log("No API key found in configuration. User will need to set up.")
+      log.info("No API key found in configuration. User will need to set up.")
     }
     
     initializeHelpers()
@@ -564,26 +565,26 @@ async function initializeApp() {
 
     // Initialize auto-updater regardless of environment
     initAutoUpdater()
-    console.log(
+    log.info(
       "Auto-updater initialized in",
       isDev ? "development" : "production",
       "mode"
     )
   } catch (error) {
-    console.error("Failed to initialize application:", error)
+    log.error("Failed to initialize application:", error)
     app.quit()
   }
 }
 
 // Auth callback handling removed - no longer needed
 app.on("open-url", (event, url) => {
-  console.log("open-url event received:", url)
+  log.info("open-url event received:", url)
   event.preventDefault()
 })
 
 // Handle second instance (removed auth callback handling)
 app.on("second-instance", (event, commandLine) => {
-  console.log("second-instance event received:", commandLine)
+  log.info("second-instance event received:", commandLine)
   
   // Focus or create the main window
   if (!state.mainWindow) {

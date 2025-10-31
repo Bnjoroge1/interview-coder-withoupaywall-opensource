@@ -1,12 +1,13 @@
 // ipcHandlers.ts
 
 import { ipcMain, shell, dialog } from "electron"
+import log from "electron-log"
 import { randomBytes } from "crypto"
 import { IIpcHandlerDeps } from "./main"
 import { configHelper } from "./ConfigHelper"
 
 export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
-  console.log("Initializing IPC handlers")
+  log.info("Initializing IPC handlers")
 
   // Configuration handlers
   ipcMain.handle("get-config", () => {
@@ -47,7 +48,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       )
       mainWindow.webContents.send("credits-updated", credits)
     } catch (error) {
-      console.error("Error setting initial credits:", error)
+      log.error("Error setting initial credits:", error)
       throw error
     }
   })
@@ -68,7 +69,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
         mainWindow.webContents.send("credits-updated", newCredits)
       }
     } catch (error) {
-      console.error("Error decrementing credits:", error)
+      log.error("Error decrementing credits:", error)
     }
   })
 
@@ -146,7 +147,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
 
       return previews
     } catch (error) {
-      console.error("Error getting screenshots:", error)
+      log.error("Error getting screenshots:", error)
       throw error
     }
   })
@@ -164,7 +165,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
         })
         return { success: true }
       } catch (error) {
-        console.error("Error triggering screenshot:", error)
+        log.error("Error triggering screenshot:", error)
         return { error: "Failed to trigger screenshot" }
       }
     }
@@ -177,7 +178,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       const preview = await deps.getImagePreview(screenshotPath)
       return { path: screenshotPath, preview }
     } catch (error) {
-      console.error("Error taking screenshot:", error)
+      log.error("Error taking screenshot:", error)
       return { error: "Failed to take screenshot" }
     }
   })
@@ -191,11 +192,11 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
   // Open external URL handler
   ipcMain.handle("openLink", (event, url: string) => {
     try {
-      console.log(`Opening external URL: ${url}`);
+      log.info(`Opening external URL: ${url}`);
       shell.openExternal(url);
       return { success: true };
     } catch (error) {
-      console.error(`Error opening URL ${url}:`, error);
+      log.error(`Error opening URL ${url}:`, error);
       return { success: false, error: `Failed to open URL: ${error}` };
     }
   })
@@ -216,7 +217,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.toggleMainWindow()
       return { success: true }
     } catch (error) {
-      console.error("Error toggling window:", error)
+      log.error("Error toggling window:", error)
       return { error: "Failed to toggle window" }
     }
   })
@@ -226,7 +227,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.clearQueues()
       return { success: true }
     } catch (error) {
-      console.error("Error resetting queues:", error)
+      log.error("Error resetting queues:", error)
       return { error: "Failed to reset queues" }
     }
   })
@@ -246,7 +247,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       await deps.processingHelper?.processScreenshots()
       return { success: true }
     } catch (error) {
-      console.error("Error processing screenshots:", error)
+      log.error("Error processing screenshots:", error)
       return { error: "Failed to process screenshots" }
     }
   })
@@ -273,7 +274,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
 
       return { success: true }
     } catch (error) {
-      console.error("Error triggering reset:", error)
+      log.error("Error triggering reset:", error)
       return { error: "Failed to trigger reset" }
     }
   })
@@ -284,7 +285,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.moveWindowLeft()
       return { success: true }
     } catch (error) {
-      console.error("Error moving window left:", error)
+      log.error("Error moving window left:", error)
       return { error: "Failed to move window left" }
     }
   })
@@ -294,7 +295,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.moveWindowRight()
       return { success: true }
     } catch (error) {
-      console.error("Error moving window right:", error)
+      log.error("Error moving window right:", error)
       return { error: "Failed to move window right" }
     }
   })
@@ -304,7 +305,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.moveWindowUp()
       return { success: true }
     } catch (error) {
-      console.error("Error moving window up:", error)
+      log.error("Error moving window up:", error)
       return { error: "Failed to move window up" }
     }
   })
@@ -314,7 +315,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       deps.moveWindowDown()
       return { success: true }
     } catch (error) {
-      console.error("Error moving window down:", error)
+      log.error("Error moving window down:", error)
       return { error: "Failed to move window down" }
     }
   })
@@ -344,7 +345,7 @@ export function initializeIpcHandlers(deps: IIpcHandlerDeps): void {
       
       return result
     } catch (error) {
-      console.error("Error deleting last screenshot:", error)
+      log.error("Error deleting last screenshot:", error)
       return { success: false, error: "Failed to delete last screenshot" }
     }
   })
